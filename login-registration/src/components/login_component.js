@@ -33,9 +33,8 @@ export default class Login extends Component {
       .then((data) => {
         console.log(data, "userRegister");
         if (data.status == "ok") {
-          alert("login successful");
           window.localStorage.setItem("token", data.data);
-          window.location.href = "./userDetails";
+          window.location.href = "./dashboard";
         }
         else{
           alert("Login Unsuccessfull (Username/ Password is wrong.) Please try again")
@@ -64,9 +63,8 @@ export default class Login extends Component {
       .then((data) => {
         console.log(data, "UserLogin");
         if (data.status == "ok") {
-          alert("login successful");
           window.localStorage.setItem("token", data.data);
-          window.location.href = "./userDetails";
+          window.location.href = "./dashboard";
         }
       });
   }
@@ -99,6 +97,8 @@ export default class Login extends Component {
           <label>Password</label>
           <input
             type="password"
+            minlength="6"
+            maxLength="8"
             className="form-control"
             placeholder="Enter password"
             onChange={(e) => this.setState({ password: e.target.value })}
