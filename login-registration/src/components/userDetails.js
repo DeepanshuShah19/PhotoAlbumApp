@@ -115,18 +115,6 @@ export default class UserDetails extends Component {
               onChange={(e) => this.setState({ email: e.target.value })}
             />
           </div>
-          
-          <div className="mb-3">
-            <label>Password</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Enter your Password"
-              value = {this.state.password}
-              onChange={(e) => this.setState({ password: e.target.value})}
-            />
-          </div>
-  
   
           <div className="d-grid">
             <button type="submit" className="btn btn-success">
