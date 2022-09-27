@@ -7,12 +7,13 @@ export default class SignUp extends Component {
       name: "",
       email: "",
       password: "",
+      confirmPassword: "",
       };
     this.handleSubmit = this.handleSubmit.bind(this);
   }
   handleSubmit(e) {
     e.preventDefault();
-    const { name, email, password } = this.state;
+    const { name, email, password,confirmPassword } = this.state;
     console.log(name, email, password);
     fetch("http://localhost:5000/register", {
       method: "POST",
@@ -31,10 +32,16 @@ export default class SignUp extends Component {
     .then((res) => res.json())
     .then((data) => {
       console.log(data, "UserRegistered");
-      if (data.status == "ok") {
+      if (data.status == "ok"&& name!=="" && email!=="" && password!=="" && password===confirmPassword) {
         alert("Register successful");
         window.localStorage.setItem("token", data.data);
         window.location.href = "./userDetails";
+      }
+      else if(password!==confirmPassword){
+        alert("Passwords doesn't match")
+      }
+      else{
+        alert("Field empty")
       }
     });
   }
@@ -73,6 +80,16 @@ export default class SignUp extends Component {
             className="form-control"
             placeholder="Enter password"
             onChange={(e) => this.setState({ password: e.target.value })}
+          />
+        </div>
+
+        <div className="mb-3">
+          <label>Confirm Password</label>
+          <input
+            type="password"
+            className="form-control"
+            placeholder="Confirm password"
+            onChange={(e) => this.setState({ confirmPassword: e.target.value })}
           />
         </div>
 

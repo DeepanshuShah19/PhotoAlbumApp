@@ -37,6 +37,9 @@ export default class Login extends Component {
           window.localStorage.setItem("token", data.data);
           window.location.href = "./userDetails";
         }
+        else{
+          alert("Login Unsuccessfull (Username/ Password is wrong.) Please try again")
+        }
       });
   };
 
