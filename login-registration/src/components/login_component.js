@@ -96,6 +96,8 @@ export default class Login extends Component {
           <label>Password</label>
           <input
             type="password"
+            minlength="6"
+            maxLength="8"
             className="form-control"
             placeholder="Enter password"
             onChange={(e) => this.setState({ password: e.target.value })}

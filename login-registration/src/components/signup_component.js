@@ -72,6 +72,8 @@ export default class SignUp extends Component {
             type="password"
             className="form-control"
             placeholder="Enter password"
+            minlength="6"
+            maxlength="8"
             onChange={(e) => this.setState({ password: e.target.value })}
           />
         </div>
