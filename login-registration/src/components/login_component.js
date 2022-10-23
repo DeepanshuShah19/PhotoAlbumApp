@@ -16,7 +16,7 @@ export default class Login extends Component {
     e.preventDefault();
     const { email, password } = this.state;
     console.log(email, password);
-    fetch("http://localhost:5000/login-user", {
+    fetch("http://localhost:12230/login-user", {
       method: "POST",
       crossDomain: true,
       headers: {
@@ -47,7 +47,7 @@ export default class Login extends Component {
     const userDetails = jwt_decode(response.credential);
     console.log(userDetails);
 
-    fetch("http://localhost:5000/google-login", {
+    fetch("http://localhost:12230/google-login", {
       method: "POST",
       crossDomain: true,
       headers: {

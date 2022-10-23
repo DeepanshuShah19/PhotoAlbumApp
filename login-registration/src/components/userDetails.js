@@ -14,7 +14,7 @@ export default class UserDetails extends Component {
     
   }
   componentDidMount() {
-    fetch("http://localhost:5000/userData", {
+    fetch("http://localhost:12230/userData", {
       method: "POST",
       crossDomain: true,
       headers: {
@@ -41,7 +41,7 @@ export default class UserDetails extends Component {
   handleSubmit(e) {
     e.preventDefault();
     const { name, email, password, bio, phoneNumber } = this.state;
-    fetch("http://localhost:5000/edit-details", {
+    fetch("http://localhost:12230/edit-details", {
       method: "POST",
       crossDomain: true,
       headers: {
