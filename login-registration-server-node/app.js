@@ -52,6 +52,34 @@ app.post("/register", async (req, res) => {
   }
 });
 
+app.post("/addTask", async (req, res) => {
+  console.log(req.body);
+
+  const { task_name, task_description, task_status, story_points, token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+
+    await User.updateOne(
+        { "email": user.email},
+        { "$push": 
+            {"tasks": 
+                {
+                  "task_name": task_name,
+                  "task_description": task_description,
+                  "task_status": task_status,
+                  "story_points": story_points
+                }
+            }
+        }
+    )
+    res.send({ status: "ok", task_name: task_name });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
+
 app.post("/edit-details", async (req, res) => {
   console.log(req.body);
   const { name, email, password, bio, phoneNumber } = req.body;
