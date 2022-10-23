@@ -44,6 +44,7 @@ app.post("/register", async (req, res) => {
       name,
       email,
       password: encryptedPassword,
+      taskCount:0
     });
     const token = jwt.sign({ email: email }, JWT_SECRET)
     res.send({ status: "ok", data: token });
@@ -59,21 +60,97 @@ app.post("/addTask", async (req, res) => {
   try {
       const user = jwt.verify(token, JWT_SECRET);
       console.log(user);
+      const tc = await User.findOne({email: user.email});
+      // console.log("tc: ",tc);
+      // console.log("tc1: ",tc.taskCount);
+      const tCount=tc.taskCount+1;
+      await User.updateOne(
+          { "email": user.email},
+          { "$push": 
+              {"tasks": 
+                  {
+                    "task_name": task_name,
+                    "task_description": task_description,
+                    "task_status": task_status,
+                    "story_points": story_points,
+                    "task_id":tCount
+                  }
+              }
+          }
+      )
+      await User.updateOne(
+          { "email": user.email},
+          { "$set": 
+              {
+                "taskCount":tCount
+              }
+          }
+      )
+    res.send({ status: "ok", data: task_name });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
 
-    await User.updateOne(
-        { "email": user.email},
-        { "$push": 
-            {"tasks": 
-                {
-                  "task_name": task_name,
-                  "task_description": task_description,
-                  "task_status": task_status,
-                  "story_points": story_points
-                }
-            }
+app.post("/viewTask", async (req, res) => {
+  console.log(req.body);
+
+  const { task_id, token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+      const task = await User.aggregate([
+      {
+        $match: {
+          "email": user.email
         }
-    )
-    res.send({ status: "ok", task_name: task_name });
+      },
+      {
+        $unwind: '$tasks'
+      },
+      {
+        $match: {
+          'tasks.task_id': task_id
+        }
+      },
+      {
+        "$project": {
+            "tasks":1,
+            _id:0
+        }
+      }
+    ])
+    res.send({ status: "ok", data: task[0].tasks });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
+
+app.post("/editTask", async (req, res) => {
+  console.log(req.body);
+
+  const { task_id, task_name, task_description, task_status, story_points, token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+
+      await User.updateMany(
+        {
+          "email": user.email,
+          "tasks.task_id":+task_id
+        },
+        {
+          $set:{
+              "tasks.$.task_name": task_name,
+              "tasks.$.task_description": task_description,
+              "tasks.$.task_status": task_status,
+              "tasks.$.story_points": story_points
+          }
+        })
+
+      res.send({ status: "ok", data: task_name });
   } catch (error) {
     console.log("####################", error);
     res.send({ status: "error", data: error });
@@ -137,6 +214,7 @@ app.post("/google-login", async (req, res) => {
       name,
       email,
       password: encryptedPassword,
+      taskCount:0
     });
   }
 

@@ -7,6 +7,7 @@ const UserDetailsScehma = new mongoose.Schema(
     password: String,
     bio: String,
     phoneNumber: String,
+    taskCount:Number,
     tasks:[Map]
   },
   {
