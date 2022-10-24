@@ -289,6 +289,34 @@ app.post("/editTask", async (req, res) => {
   }
 });
 
+// app.post("/deleteAllTasks", async (req, res) => {
+//   console.log(req.body);
+
+//   const { token } = req.body;
+//   try {
+//       const user = jwt.verify(token, JWT_SECRET);
+//       console.log(user);
+
+//       await User.updateMany(
+//         {
+//           "email": user.email
+//         },
+//         {
+//           $set:{
+//               "tasks": [],
+//               "taskCount":0
+//           }
+//         })
+
+//       res.send({ status: "ok", data: "success" });
+//   } catch (error) {
+//     console.log("####################", error);
+//     res.send({ status: "error", data: error });
+//   }
+// });
+
+
+
 app.post("/deleteAllTasks", async (req, res) => {
   console.log(req.body);
 
@@ -297,18 +325,43 @@ app.post("/deleteAllTasks", async (req, res) => {
       const user = jwt.verify(token, JWT_SECRET);
       console.log(user);
 
-      await User.updateMany(
-        {
-          "email": user.email
-        },
-        {
-          $set:{
-              "tasks": [],
-              "taskCount":0
-          }
-        })
+  const allTasks = await User.aggregate([
+    {
+      $match: {
+        "email": user.email
+      }
+    },
+    {
+      $unwind: '$tasks'
+    },
+    {
+      "$project": {
+          "tasks":1,
+          _id:0
+      }
+    }
+  ])
 
-      res.send({ status: "ok", data: "success" });
+  const newArr = [];
+  var j=0;
+  for (var i = 0; i < allTasks.length; i++) {
+    if(allTasks[i].tasks.task_status != "Complete"){
+      newArr[j] = allTasks[i].tasks;
+      j++;
+    }
+    
+  }
+
+  await User.updateMany(
+    {
+      "email": user.email
+    },
+    {
+      $set:{
+          "tasks": newArr
+      }
+    })
+      res.send({ status: "ok", data: "ok" });
   } catch (error) {
     console.log("####################", error);
     res.send({ status: "error", data: error });
