@@ -6,7 +6,9 @@ const UserDetailsScehma = new mongoose.Schema(
     email: { type: String, unique: true },
     password: String,
     bio: String,
-    phoneNumber: String
+    phoneNumber: String,
+    taskCount:Number,
+    tasks:[Map]
   },
   {
     collection: "UserInfo",

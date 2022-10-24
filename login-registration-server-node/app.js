@@ -44,11 +44,378 @@ app.post("/register", async (req, res) => {
       name,
       email,
       password: encryptedPassword,
+      taskCount:0
     });
     const token = jwt.sign({ email: email }, JWT_SECRET)
     res.send({ status: "ok", data: token });
   } catch (error) {
     res.send({ status: "error" });
+  }
+});
+
+app.post("/addTask", async (req, res) => {
+  console.log(req.body);
+
+  const { task_name, task_description, story_points, token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+      const tc = await User.findOne({email: user.email});
+      const tCount=tc.taskCount+1;
+      await User.updateOne(
+          { "email": user.email},
+          { "$push": 
+              {"tasks": 
+                  {
+                    "task_name": task_name,
+                    "task_description": task_description,
+                    "task_status": "Active",
+                    "story_points": story_points,
+                    "task_id":+tCount
+                  }
+              }
+          }
+      )
+      await User.updateOne(
+          { "email": user.email},
+          { "$set": 
+              {
+                "taskCount":+tCount
+              }
+          }
+      )
+    res.send({ status: "ok", data: task_name });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
+
+app.post("/viewTask", async (req, res) => {
+  console.log(req.body);
+
+  const { task_id, token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+      const task = await User.aggregate([
+      {
+        $match: {
+          "email": user.email
+        }
+      },
+      {
+        $unwind: '$tasks'
+      },
+      {
+        $match: {
+          'tasks.task_id': task_id
+        }
+      },
+      {
+        "$project": {
+            "tasks":1,
+            _id:0
+        }
+      }
+    ])
+    res.send({ status: "ok", data: task[0].tasks });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
+
+
+app.post("/searchTask", async (req, res) => {
+  console.log(req.body);
+
+  const { task_name, token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+      const findTasks = await User.aggregate([
+        {
+          $match: {
+            "email": user.email
+          }
+        },
+        {
+          $unwind: '$tasks'
+        },
+        {
+        $match: {
+            'tasks.task_name': {$regex: task_name}
+          }
+        },
+        {
+          "$project": {
+              "tasks":1,
+              _id:0
+          }
+        }
+      ])
+
+      console.log("allTasks########", findTasks);
+
+    const respTasks = [];
+    for (var i = 0; i < findTasks.length; i++) {
+      findTasks[i] = findTasks[i].tasks;
+    }
+
+    res.send({ status: "ok", data: {"tasks":findTasks, "taskCount":findTasks.length} });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
+
+
+app.post("/getTasks", async (req, res) => {
+  console.log(req.body);
+
+  const { token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+      
+      const allTasks = await User.aggregate([
+        {
+          $match: {
+            "email": user.email
+          }
+        },
+        {
+          $unwind: '$tasks'
+        },
+        {
+          "$project": {
+              "tasks":1,
+              _id:0
+          }
+        }
+      ])
+
+      const completedTasks = await User.aggregate([
+        {
+          $match: {
+            "email": user.email
+          }
+        },
+        {
+          $unwind: '$tasks'
+        },
+        {
+          $match: {
+            'tasks.task_status': "Complete"
+          }
+        },
+        {
+          "$project": {
+              "tasks":1,
+              _id:0
+          }
+        }
+      ])
+
+      const activeTasks = await User.aggregate([
+        {
+          $match: {
+            "email": user.email
+          }
+        },
+        {
+          $unwind: '$tasks'
+        },
+        {
+          $match: {
+            'tasks.task_status': "Active"
+          }
+        },
+        {
+          "$project": {
+              "tasks":1,
+              _id:0
+          }
+        }
+      ])
+
+      for (var i = 0; i < allTasks.length; i++) {
+        allTasks[i] = allTasks[i].tasks;
+      }
+      
+      for (var i = 0; i < completedTasks.length; i++) {
+        completedTasks[i] = completedTasks[i].tasks;
+      }
+      
+      for (var i = 0; i < activeTasks.length; i++) {
+        activeTasks[i] = activeTasks[i].tasks;
+      }
+
+    res.send({ status: "ok", data: {"allTasks":allTasks, "allTaskCount":allTasks.length,"completedTasks":completedTasks, "completedTasksCount":completedTasks.length,"activeTasks":activeTasks, "activeTasksCount":activeTasks.length} });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
+
+
+
+app.post("/editTask", async (req, res) => {
+  console.log(req.body);
+
+  const { task_id, task_name, task_description, story_points, token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+
+      await User.updateMany(
+        {
+          "email": user.email,
+          "tasks.task_id":+task_id
+        },
+        {
+          $set:{
+              "tasks.$.task_name": task_name,
+              "tasks.$.task_description": task_description,
+              "tasks.$.story_points": story_points
+          }
+        })
+
+      res.send({ status: "ok", data: task_name });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
+
+app.post("/deleteAllTasks", async (req, res) => {
+  console.log(req.body);
+
+  const { token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+
+      await User.updateMany(
+        {
+          "email": user.email
+        },
+        {
+          $set:{
+              "tasks": [],
+              "taskCount":0
+          }
+        })
+
+      res.send({ status: "ok", data: "success" });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
+
+app.post("/completeTask", async (req, res) => {
+  console.log(req.body);
+
+  const { task_id, token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+
+      await User.updateMany(
+        {
+          "email": user.email,
+          "tasks.task_id":+task_id
+        },
+        {
+          $set:{
+              "tasks.$.task_status": "Complete",
+          }
+        })
+
+      res.send({ status: "ok", data: task_id });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
+
+app.post("/activeTask", async (req, res) => {
+  console.log(req.body);
+
+  const { task_id, token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+
+      await User.updateMany(
+        {
+          "email": user.email,
+          "tasks.task_id":+task_id
+        },
+        {
+          $set:{
+              "tasks.$.task_status": "Active",
+          }
+        })
+
+      res.send({ status: "ok", data: task_id });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
+
+
+app.post("/deleteTask", async (req, res) => {
+  console.log(req.body);
+
+  const { task_id, token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+
+  const allTasks = await User.aggregate([
+    {
+      $match: {
+        "email": user.email
+      }
+    },
+    {
+      $unwind: '$tasks'
+    },
+    {
+      "$project": {
+          "tasks":1,
+          _id:0
+      }
+    }
+  ])
+
+  const newArr = [];
+  var j=0;
+  for (var i = 0; i < allTasks.length; i++) {
+    if(allTasks[i].tasks.task_id != task_id){
+      newArr[j] = allTasks[i].tasks;
+      j++;
+    }
+    
+  }
+
+  await User.updateMany(
+    {
+      "email": user.email
+    },
+    {
+      $set:{
+          "tasks": newArr
+      }
+    })
+      res.send({ status: "ok", data: +task_id });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
   }
 });
 
@@ -109,6 +476,7 @@ app.post("/google-login", async (req, res) => {
       name,
       email,
       password: encryptedPassword,
+      taskCount:0
     });
   }
 
