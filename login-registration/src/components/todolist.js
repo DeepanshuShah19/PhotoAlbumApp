@@ -15,7 +15,7 @@ export default class TodoList extends Component {
         this.displayAll = this.displayAll.bind(this)
         this.displayActive = this.displayActive.bind(this)
         this.displayCompleted = this.displayCompleted.bind(this)
-        this.removeCompleted = this.removeCompleted.bind(this)
+        // this.removeCompleted = this.removeCompleted.bind(this)
         this.removeAllCompleted = this.removeAllCompleted.bind(this)
         this.search = this.search.bind(this)
         this.updateStatus = this.updateStatus.bind(this)
