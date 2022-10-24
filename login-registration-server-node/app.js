@@ -73,7 +73,7 @@ app.post("/addTask", async (req, res) => {
                     "task_description": task_description,
                     "task_status": task_status,
                     "story_points": story_points,
-                    "task_id":tCount
+                    "task_id":+tCount
                   }
               }
           }
@@ -82,7 +82,7 @@ app.post("/addTask", async (req, res) => {
           { "email": user.email},
           { "$set": 
               {
-                "taskCount":tCount
+                "taskCount":+tCount
               }
           }
       )
@@ -128,6 +128,46 @@ app.post("/viewTask", async (req, res) => {
   }
 });
 
+app.post("/getTasks", async (req, res) => {
+  console.log(req.body);
+
+  const { token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+
+      const allTasks = await User.findOne({ "email": user.email }).select("tasks");
+
+     
+    //   const task = await User.aggregate([
+    //   {
+    //     $match: {
+    //       "email": user.email
+    //     }
+    //   },
+    //   {
+    //     $unwind: '$tasks'
+    //   },
+    //   {
+    //     $match: {
+    //       'tasks.task_id': task_id
+    //     }
+    //   },
+    //   {
+    //     "$project": {
+    //         "tasks":1,
+    //         _id:0
+    //     }
+    //   }
+    // ])
+    res.send({ status: "ok", data: task[0].tasks });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
+
+
 app.post("/editTask", async (req, res) => {
   console.log(req.body);
 
@@ -151,6 +191,32 @@ app.post("/editTask", async (req, res) => {
         })
 
       res.send({ status: "ok", data: task_name });
+  } catch (error) {
+    console.log("####################", error);
+    res.send({ status: "error", data: error });
+  }
+});
+
+
+app.post("/deleteTask", async (req, res) => {
+  console.log(req.body);
+
+  const { task_id, token } = req.body;
+  try {
+      const user = jwt.verify(token, JWT_SECRET);
+      console.log(user);
+
+  //   await User.updateMany({"email": user.email}, {
+  //     $pull: {
+  //        'tasks.story_points': "10",
+  //     },
+  // });
+
+  const pulled = await User.updateMany(
+    { },
+    { $pull: { tasks: { story_points: "10" } } }
+  );
+      res.send({ status: "ok", data: +task_id });
   } catch (error) {
     console.log("####################", error);
     res.send({ status: "error", data: error });
