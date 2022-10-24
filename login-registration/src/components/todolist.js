@@ -1,14 +1,16 @@
 import React, { Component } from "react";
 import addTask from "./addTask";
 import { Link } from "react-router-dom";
-import { setActive, getAllTasks, setCompleted, removeTask, deleteAllCompleted } from "../utils/utils";
+import { setActive, getAllTasks, setCompleted, removeTask, deleteAllCompleted, searchTasks } from "../utils/utils";
 export default class TodoList extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
+            searchField: '',
             currentDisplay: '',
             addTaskPopup: false,
+            story_total: 0,
             data: []
         };
         this.addTask = this.addTask.bind(this);
@@ -25,8 +27,16 @@ export default class TodoList extends Component {
 
         console.log("printing data\n", data.allTasks)
 
+        let storyTotal = 0
+
+        for( const task of data.allTasks.entries()){
+            console.log(task[1])
+            storyTotal= storyTotal + parseInt(task[1].story_points)
+        }
+
         this.setState({
-            data: data.allTasks
+            data: data.allTasks,
+            story_total: storyTotal
         })
 
 
@@ -41,8 +51,16 @@ export default class TodoList extends Component {
 
         console.log("printing data\n", responseData.allTasks)
 
+        let storyTotal = 0
+
+        for( const task of responseData.allTasks.entries()){
+            console.log(task[1])
+            storyTotal= storyTotal + parseInt(task[1].story_points)
+        }
+
         this.setState({
-            data: responseData.allTasks
+            data: responseData.allTasks,
+            story_total: storyTotal
         })
 
     }
@@ -54,8 +72,16 @@ export default class TodoList extends Component {
 
         console.log("printing data from display \n", responseData.allTasks)
 
+        let storyTotal = 0
+
+        for( const task of responseData.activeTasks.entries()){
+            console.log(task[1])
+            storyTotal= storyTotal + parseInt(task[1].story_points)
+        }
+
         this.setState({
-            data: responseData.activeTasks
+            data: responseData.activeTasks,
+            story_total: storyTotal
         })
     }
 
@@ -67,16 +93,24 @@ export default class TodoList extends Component {
 
         console.log("printing data\n", responseData.completedTasks)
 
+        let storyTotal = 0
+
+        for( const task of responseData.completedTasks.entries()){
+            console.log(task[1])
+            storyTotal= storyTotal + parseInt(task[1].story_points)
+        }
+
         this.setState({
-            data: responseData.completedTasks
+            data: responseData.completedTasks,
+            story_total: storyTotal
         })
     }
 
-    async removeAllCompleted() {
-        console.log("Removing all completed")
-        await deleteAllCompleted()
-        this.displayAll()
-    }
+    // async removeAllCompleted() {
+    //     console.log("Removing all completed")
+    //     await deleteAllCompleted()
+    //     this.displayAll()
+    // }
 
     async updateStatus(task, action) {
         console.log("CurrentStatus: ", task.task_status)
@@ -95,19 +129,6 @@ export default class TodoList extends Component {
 
         //call api to make changes
         //call api that returns all task
-    }
-
-    async displayCompleted() {
-        console.log("Completed")
-        // this.setState({ currentDisplay: 'completed' });
-
-        let responseData = await getAllTasks()
-
-        console.log("printing data\n", responseData.completedTasks)
-
-        this.setState({
-            data: responseData.completedTasks
-        })
     }
 
     async removeAllCompleted() {
@@ -136,9 +157,12 @@ export default class TodoList extends Component {
     }
 
 
-    search() {
-        console.log("Completed")
-        this.setState({ currentDisplay: 'completed' });
+    async search() {
+        console.log("Search")
+        
+        let response = await searchTasks(this.state.searchField)
+        console.log(response)
+        this.setState({data : response.tasks})
     }
 
 
@@ -166,8 +190,8 @@ export default class TodoList extends Component {
                                     type="text"
                                     className="searchField"
                                     placeholder="Enter task to search..."
-                                    value={this.state.name}
-                                    onChange={(e) => this.setState({ name: e.target.value })}
+                                    value={this.state.searchField}
+                                    onChange={(e) => this.setState({ searchField: e.target.value })}
                                 />
                                 <button type="button" class="btn btn-success btn-lg button_d" onClick={this.search}>Search</button>
                                 <button type="button" class="btn btn-success btn-lg button_d" onClick={this.addTask}>Add task</button>
@@ -185,7 +209,7 @@ export default class TodoList extends Component {
                                     <th className="tableFields">Id</th>
                                     <th className="tableFields">Task name</th>
                                     <th className="tableFields">Status</th>
-                                    <th className="tableFields">Stroy Points</th>
+                                    <th className="tableFields">Story Points ({this.state.story_total})</th>
                                     <th className="tableFields">Actions</th>
                                 </tr>
                                 {this.state.data.map((val, key) => {
@@ -197,12 +221,12 @@ export default class TodoList extends Component {
                                             <td className="tableFields">{val.story_points}</td>
                                             <td className="tableFields">{val.task_status === "Complete"
                                                 ? <>
-                                                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayCompleted}>View</button>
+                                                    {/* <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayCompleted}>View</button> */}
                                                     <button type="button" class="btn btn-success btn-lg button_d" onClick={() => this.updateStatus(val, "active")}>Active</button>
                                                     <button type="button" class="btn btn-danger btn-lg button_d" onClick={() => this.updateStatus(val, "remove")}>Remove</button>
                                                 </>
                                                 : <>
-                                                    <button type="button" class="btn btn-success btn-lg button_d">View</button>
+                                                    {/* <button type="button" class="btn btn-success btn-lg button_d">View</button> */}
                                                     <button type="button" class="btn btn-success btn-lg button_d" onClick={() => this.updateStatus(val, "complete")}>Complete</button>
                                                 </>
                                             }</td>

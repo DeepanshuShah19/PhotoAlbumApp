@@ -210,3 +210,36 @@ export const addTask = async (name,description,storyPoints) => {
     }
     return null;
 }
+
+export const searchTasks = async (name) => {
+    console.log("In searchTasks function")
+    const requestBody = {
+        'task_name' : name, 
+        'token': TOKEN,
+    };
+
+    console.log('stringified request: ', JSON.stringify(requestBody));
+
+    const options = {
+        method: "POST",
+        crossDomain: true,
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify(requestBody)
+    };
+
+    try {
+        let response = await fetch(API_URL + "searchTask", options);
+        let json = await response.json();
+        console.log('Search complete', json);
+
+        return json.data;
+        
+    } catch (err) {
+        console.error('Error while searching task.', err);
+    }
+    return null;
+}
