@@ -7,7 +7,8 @@ import Login from "./components/login_component";
 import SignUp from "./components/signup_component";
 import UserDetails from "./components/userDetails";
 import Dashboard from "./components/dashboard";
-
+import TodoList from "./components/todolist";
+import AddTask from "./components/addTask";
 
 function App() {
   return (
@@ -21,6 +22,8 @@ function App() {
               <Route path="/sign-up" element={<SignUp />} />
               <Route path="/userDetails" element={<UserDetails />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/todolist" element={<TodoList />} />
+              <Route path="/addTask" element={<AddTask />} />
             </Routes>
           </div>
         </div>

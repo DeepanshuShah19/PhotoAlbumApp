@@ -15,6 +15,7 @@ export default class Dashboard extends Component {
          <p class="dashb"> Welcome to the Dashboard</p>
          <center>
             <Link to="/userDetails"><button type="button" class="btn btn-success btn-lg button_d">View Profile</button></Link>
+            <Link to="/todolist"><button type="button" class="btn btn-success btn-lg button_d">View To-Do List</button></Link>
          </center>
         </div>
     );
