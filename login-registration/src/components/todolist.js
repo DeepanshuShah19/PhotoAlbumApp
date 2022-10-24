@@ -12,18 +12,18 @@ export default class TodoList extends Component {
         this.state = {
             currentDisplay: '',
             addTaskPopup: false,
-            data:[]
+            data: []
         };
 
     }
     componentDidMount() {
         this.setState({
-            data : [
-                { name: "Anom", age: 19, gender: "Male" },
-        { name: "Megha", age: 19, gender: "Female" },
+            data: [
+                { id: "1", name: "AD", status: "active" },
+                { id: "2", name: "DS", status: "completed" },
             ]
         })
-        
+
         // fetch("http://localhost:12230/userData", {
         //   method: "POST",
         //   crossDomain: true,
@@ -89,70 +89,66 @@ export default class TodoList extends Component {
         console.log("Completed")
         this.setState({ currentDisplay: 'completed' });
     }
-    
-    render() {
 
-    //     data = [
-    //         { name: "Anom", age: 19, gender: "Male" },
-    // { name: "Megha", age: 19, gender: "Female" },
-    //     ]
+    removeCompleted() {
+        console.log("Completed")
+        this.setState({ currentDisplay: 'completed' });
+    }
+
+    search() {
+        console.log("Completed")
+        this.setState({ currentDisplay: 'completed' });
+    }
+
+    render() {
         return (
             <div>
-                <form onSubmit={this.handleSubmit}>
+                <div className="mb-5 searchButtons">
+                    {/* <form onSubmit={this.handleSubmit}> */}
+                    <input
+                        type="text"
+                        className="searchField"
+                        placeholder="Enter task to search..."
+                        value={this.state.name}
+                        onChange={(e) => this.setState({ name: e.target.value })}
+                    />
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.search}>Search</button>
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayAll}>Add task</button>
+                    <button type="button" class="btn btn-danger btn-lg button_d" onClick={this.removeCompleted}>Remove All Completed</button>
+                    {/* </form> */}
+                </div>
 
-                    <div className="mb-5">
-                        <input
-                            type="text"
-                            className="searchField"
-                            placeholder="Enter task to search..."
-                            value={this.state.name}
-                            onChange={(e) => this.setState({ name: e.target.value })}
-                        />
-                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayAll}>Search</button>
-                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayAll}>Add task</button>
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayAll}>All</button>
-                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayActive}>Active</button>
-                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayCompleted}>Completed</button>
-                    </div>
-                </form>
+                <div className="viewButtons">
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayAll}>All</button>
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayActive}>Active</button>
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayCompleted}>Completed</button>
+                </div>
 
-                {/* <table>
-                    <tr>
-                        <th>Id</th>
-                        <th>Name</th>
-                        <th>Current Status</th>
-                        <th>Actions</th>
-                    </tr>
-                    <tr>
-                        <td>Anom</td>
-                        <td>19</td>
-                        <td>Male</td>
-                    </tr>
-                    <tr>
-                        <td>Megha</td>
-                        <td>19</td>
-                        <td>Female</td>
-                    </tr>
-                    <tr>
-                        <td>Subham</td>
-                        <td>25</td>
-                        <td>Male</td>
-                    </tr>
-                </table> */}
-                <table>
-                    <tr>
-                        <th>Name</th>
-                        <th>Age</th>
-                        <th>Gender</th>
+                <table className="tableClass">
+                    <tr className="tableFields">
+                        <th className="tableFields">Id</th>
+                        <th className="tableFields">Task name</th>
+                        <th className="tableFields">Status</th>
+                        <th className="tableFields">Actions</th>
                     </tr>
                     {this.state.data.map((val, key) => {
                         return (
-                            <tr key={key}>
-                                <td>{val.name}</td>
-                                <td>{val.age}</td>
-                                <td>{val.gender}</td>
+                            <tr key={key} className="tableFields">
+                                <td className="tableFields">{val.id}</td>
+                                <td className="tableFields">{val.name}</td>
+                                <td className="tableFields">{val.status}</td>
+                                <td className="tableFields">{val.status === "completed"
+                                    ? <>
+                                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayCompleted}>View</button>
+                                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayCompleted}>Active</button>
+                                        <button type="button" class="btn btn-danger btn-lg button_d" onClick={this.displayCompleted}>Remove</button>
+                                    </>
+                                    : <>
+                                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayCompleted}>View</button>
+                                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayCompleted}>Complete</button>
+                                    </>
+
+                                }</td>
                             </tr>
                         )
                     })}
