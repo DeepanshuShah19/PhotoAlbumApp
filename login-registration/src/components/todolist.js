@@ -81,10 +81,12 @@ export default class TodoList extends Component {
         });
 
     }
+
     displayActive() {
         console.log("Active")
         this.setState({ currentDisplay: 'active' });
     }
+
     displayCompleted() {
         console.log("Completed")
         this.setState({ currentDisplay: 'completed' });
@@ -100,7 +102,15 @@ export default class TodoList extends Component {
         this.setState({ currentDisplay: 'completed' });
     }
 
+    updateStatus = (currentState,action) => {
+        console.log("CurrentStatus: ",currentState)
+        console.log("action: ",action)
+        //call api to make changes
+        //call api that returns all task
+    }
     render() {
+
+        // debugger;
         return (
             <div>
                 <div className="mb-5 searchButtons">
@@ -140,12 +150,12 @@ export default class TodoList extends Component {
                                 <td className="tableFields">{val.status === "completed"
                                     ? <>
                                         <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayCompleted}>View</button>
-                                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayCompleted}>Active</button>
-                                        <button type="button" class="btn btn-danger btn-lg button_d" onClick={this.displayCompleted}>Remove</button>
+                                        <button type="button" class="btn btn-success btn-lg button_d" onClick={() => this.updateStatus(val.status,"active")}>Active</button>
+                                        <button type="button" class="btn btn-danger btn-lg button_d">Remove</button>
                                     </>
                                     : <>
-                                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayCompleted}>View</button>
-                                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.displayCompleted}>Complete</button>
+                                        <button type="button" class="btn btn-success btn-lg button_d">View</button>
+                                        <button type="button" class="btn btn-success btn-lg button_d">Complete</button>
                                     </>
 
                                 }</td>
