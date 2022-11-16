@@ -8,7 +8,9 @@ const UserDetailsScehma = new mongoose.Schema(
     bio: String,
     phoneNumber: String,
     taskCount:Number,
-    tasks:[Map]
+    tasks:[Map],
+    images:[Map],
+    imageCount:Number
   },
   {
     collection: "UserInfo",
