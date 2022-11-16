@@ -9,7 +9,7 @@ import UserDetails from "./components/userDetails";
 import Dashboard from "./components/dashboard";
 import TodoList from "./components/todolist";
 import AddTask from "./components/addTask";
-
+import PhotoAlbumApp from "./components/PhotoAlbumApp";
 function App() {
   return (
     <Router>
@@ -24,6 +24,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/todolist" element={<TodoList />} />
               <Route path="/addTask" element={<AddTask />} />
+              <Route path="/photoAlbumApp" element={<PhotoAlbumApp />} />
             </Routes>
           </div>
         </div>
