@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { addImage, listImages, searchImage, groupImage} from "../utils/utils";
+import { addImage, listImages, searchImage, groupImage } from "../utils/utils";
 import FileBase64 from 'react-file-base64';
 export default class PhotoAlbumApp extends Component {
 
@@ -29,9 +29,10 @@ export default class PhotoAlbumApp extends Component {
         let imagesList = await listImages();
         this.setState({ userImgData: [] })
         for (let index = imagesList.imageCount - 1; index >= 0; index--) {
-            const element = imagesList.images[index].imageData;
+            const element = imagesList.images[index];
             this.setState(prev => ({ ...prev, userImgData: [...prev.userImgData, element] }))
         }
+        console.log("state: ", this.state.userImgData)
         // console.log("array length: ", this.state.userImgData.length)
     }
 
@@ -40,7 +41,6 @@ export default class PhotoAlbumApp extends Component {
         let addImageResponse = await addImage(this.state.imgName, this.state.imgCategory, this.state.imgFile);
         console.log("AddImageResponse: ", addImageResponse);
         this.listImagesHandler()
-
     }
 
     async searchImageHandler() {
@@ -50,12 +50,12 @@ export default class PhotoAlbumApp extends Component {
         // this.listImagesHandler()
         this.setState({ userImgData: [] })
         for (let index = searchImageResponse.imageCount - 1; index >= 0; index--) {
-            const element = searchImageResponse.images[index].imageData;
+            const element = searchImageResponse.images[index];
             this.setState(prev => ({ ...prev, userImgData: [...prev.userImgData, element] }))
         }
         // console.log("array length: ", this.state.userImgData.length)
     }
-    
+
     async groupHandler() {
         console.log("Group Display")
         let groupResponse = await groupImage(this.state.groupName);
@@ -63,7 +63,7 @@ export default class PhotoAlbumApp extends Component {
         // this.listImagesHandler()
         this.setState({ userImgData: [] })
         for (let index = groupResponse.imageCount - 1; index >= 0; index--) {
-            const element = groupResponse.images[index].imageData;
+            const element = groupResponse.images[index];
             this.setState(prev => ({ ...prev, userImgData: [...prev.userImgData, element] }))
         }
         // console.log("array length: ", this.state.userImgData.length)
@@ -100,25 +100,20 @@ export default class PhotoAlbumApp extends Component {
                         placeholder="Enter Label"
                         onChange={(e) => this.setState({ imageLabel: e.target.value })}
                     />
-                    
                     <button type="button" class="btn btn-success btn-lg button_d" onClick={this.searchImageHandler}>Search</button>
-
-
                     <input
                         type="text"
                         className="searchField"
                         placeholder="Enter Group Name"
                         onChange={(e) => this.setState({ groupName: e.target.value })}
                     />
-                    
                     <button type="button" class="btn btn-success btn-lg button_d" onClick={this.groupHandler}>Search</button>
-
                 </div>
-                <div>
+                {/* <div style={{ columnCount: 3 }}>
                     {this.state.userImgData.map(item => (
-                        <div className="imageContainer" onMouseOver={() => this.setState({ hover: true })}
-                            onMouseLeave={() => this.setState({ hover: false })}>
-                            <img className="activator" style={{ width: 100, height: 300 }} src={item} />
+                        <div className="p-1 m-1 border flex justify-center"  >
+
+                            <img className="activator" width="100%" height="auto" src={item.imageData} onMouseEnter={() => this.setState({ hover: true })} onMouseLeave={() => this.setState({ hover: false })} />
                             {this.state.hover && (
                                 <button
                                     size="sm"
@@ -134,7 +129,24 @@ export default class PhotoAlbumApp extends Component {
                             )}
                         </div>
                     ))}
-                </div>
+                </div> */}
+                <div style={{ columnCount: 2 }}>
+                    {this.state.userImgData.map(item => (
+                        <div className="p-1 m-1 border flex justify-center image"  >
+                            <img className="activator" width="100%" height="auto" src={item.imageData} onMouseEnter={() => this.setState({ hover: true })} onMouseLeave={() => this.setState({ hover: false })} />
+                            <div className="image__overlay">
+                                <div className="image__title">
+                                    {item.imageLabel}
+                                </div>
+                                <p className="image__description">{item.category}</p>
+                                <button type="button" class="btn btn-success btn-lg button_d" onClick={this.groupHandler}>Delete</button>
+                                <br></br>
+                                <button type="button" class="btn btn-success btn-lg button_d" onClick={this.groupHandler}>Replace</button>
+                            </div>
+                        </div>
+                    ))}
+                </div >
+
             </>
         );
     }
