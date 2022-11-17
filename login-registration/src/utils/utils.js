@@ -189,10 +189,11 @@ export const addTask = async (name,description,storyPoints) => {
     const options = {
         method: "POST",
         crossDomain: true,
+        mode: 'no-cors',
         headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            "Access-Control-Allow-Origin": "*",
+            // "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify(requestBody)
     };
@@ -243,3 +244,70 @@ export const searchTasks = async (name) => {
     }
     return null;
 }
+
+export const addImage = async (name,category,data) => {
+    console.log("In addImage function")
+    const requestBody = {
+        'imageLabel':name,
+        'category':category,
+        'token': TOKEN,
+        'imageData':data
+    };
+    console.log('stringified request: ', JSON.stringify(requestBody));
+    const options = {
+        method: "POST",
+        crossDomain: true,
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify(requestBody)
+    };
+
+    try {
+        let response = await fetch(API_URL + "addImage", options);
+        let json = await response.json();
+        console.log('Image Added', json);
+        return json.data;
+    } catch (err) {
+        console.error('Error while adding new image.', err);
+    }
+    return null;
+}
+
+export const listImages = async () => {
+    console.log("In listImage function")
+    const requestBody = {
+        'token': TOKEN,
+    };
+
+    console.log('stringified request: ', JSON.stringify(requestBody));
+
+    const options = {
+        method: "POST",
+        crossDomain: true,
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify(requestBody)
+    };
+
+    try {
+        let response = await fetch(API_URL + "listImages", options);
+        let json = await response.json();
+        console.log('Image List', json);
+        return json.data;
+    } catch (err) {
+        console.error('Error while getting image list.', err);
+    }
+    return null;
+}
+
+export const masonryOptions = {
+    fitWidth: true,
+    columnWidth: 300,
+    gutter: 5
+  };
