@@ -1,56 +1,44 @@
 import React, { Component } from "react";
-import addTask from "./addTask";
-import { Link } from "react-router-dom";
-import { setActive, getAllTasks, setCompleted, removeTask, deleteAllCompleted, searchTasks } from "../utils/utils";
+import { addImage, listImages, masonryOptions } from "../utils/utils";
 import FileBase64 from 'react-file-base64';
+import MultipleGridImages from 'react-multiple-image-grid'
+import Masonry from "react-masonry-component";
+// import InfiniteScroll from "react-infinite-scroller";
 export default class PhotoAlbumApp extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            // searchField: '',
-            // currentDisplay: '',
-            // addTaskPopup: false,
-            // story_total: 0,
-            // data: [],
+            userImgName: [],
+            userImgCategory: [],
+            userImgData: [],
             imgName: '',
             imgCategory: '',
             imgFile: '',
-            
+            hover: false
         };
         this.addImage = this.addImage.bind(this);
-        // this.displayAll = this.displayAll.bind(this)
-        // this.displayActive = this.displayActive.bind(this)
-        // this.displayCompleted = this.displayCompleted.bind(this)
-        // // this.removeCompleted = this.removeCompleted.bind(this)
-        // this.removeAllCompleted = this.removeAllCompleted.bind(this)
-        // this.search = this.search.bind(this)
-        // this.updateStatus = this.updateStatus.bind(this)
+        this.listImages = this.listImages.bind(this);
     }
     async componentDidMount() {
-        // let data = await getAllTasks()
-
-        // console.log("printing data\n", data.allTasks)
-
-        // let storyTotal = 0
-
-        // for (const task of data.allTasks.entries()) {
-        //     console.log(task[1])
-        //     storyTotal = storyTotal + parseInt(task[1].story_points)
-        // }
-
-        // this.setState({
-        //     data: data.allTasks,
-        //     story_total: storyTotal
-        // })
-
-
+        this.listImages()
     }
+
+    async listImages() {
+        let imagesList = await listImages();
+        this.setState({ userImgData: [] })
+        for (let index = imagesList.imageCount - 1; index >= 0; index--) {
+            const element = imagesList.images[index].imageData;
+            this.setState(prev => ({ ...prev, userImgData: [...prev.userImgData, element] }))
+        }
+        console.log("array lenfth: ", this.state.userImgData.length)
+    }
+
     async addImage() {
         console.log("Add Image")
-        console.log("Category: ",this.state.imgCategory)
-        console.log("Name: ",this.state.imgName)
-        console.log("Image: ",this.state.imgFile)
+        let addImageResponse = await addImage(this.state.imgName, this.state.imgCategory, this.state.imgFile);
+        console.log("AddImageResponse: ", addImageResponse);
+        this.listImages()
 
     }
     render() {
@@ -61,30 +49,42 @@ export default class PhotoAlbumApp extends Component {
                         type="text"
                         className="searchField"
                         placeholder="Image Name"
-                        // value={this.state.searchField}
                         onChange={(e) => this.setState({ imgName: e.target.value })}
                     />
-
                     <input
                         type="text"
                         className="searchField"
                         placeholder="Image Category"
-                        // value={this.state.searchField}
                         onChange={(e) => this.setState({ imgCategory: e.target.value })}
                     />
-
                     <FileBase64
                         type="file"
                         multiple={false}
                         onDone={({ base64 }) => this.setState({ imgFile: base64 })}
                     />
                     <button type="button" class="btn btn-success btn-lg button_d" onClick={this.addImage}>Add Image</button>
-                    {/* <button type="button" class="btn btn-success btn-lg button_d" onClick={this.addTask}>Add task</button>
-                    <button type="button" class="btn btn-danger btn-lg button_d" onClick={this.removeAllCompleted}>Remove All Completed</button> */}
-                    
+
                 </div>
-                <div className="mb-5 searchButtons">
-                <img className="activator" style={{ width: '100%', height: 300 }} src={this.state.imgFile} />
+                <div>
+                    {this.state.userImgData.map(item => (
+                        <div className="imageContainer" onMouseOver={() => this.setState({ hover: true })}
+                            onMouseLeave={() => this.setState({ hover: false })}>
+                            <img className="activator" style={{ width: 100, height: 300 }} src={item} />
+                            {this.state.hover && (
+                                <button
+                                    size="sm"
+                                    style={{
+                                        position: "absolute",
+                                        top: "5px",
+                                        right: "5px",
+                                    }}
+                                    variant="primary"
+                                >
+                                    Delete Image
+                                </button>
+                            )}
+                        </div>
+                    ))}
                 </div>
             </>
         );
