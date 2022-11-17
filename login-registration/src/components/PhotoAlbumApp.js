@@ -1,9 +1,6 @@
 import React, { Component } from "react";
-import { addImage, listImages, masonryOptions } from "../utils/utils";
+import { addImage, listImages, searchImage} from "../utils/utils";
 import FileBase64 from 'react-file-base64';
-import MultipleGridImages from 'react-multiple-image-grid'
-import Masonry from "react-masonry-component";
-// import InfiniteScroll from "react-infinite-scroller";
 export default class PhotoAlbumApp extends Component {
 
     constructor(props) {
@@ -15,32 +12,48 @@ export default class PhotoAlbumApp extends Component {
             imgName: '',
             imgCategory: '',
             imgFile: '',
+            imageLabel: '',
             hover: false
         };
         this.addImage = this.addImage.bind(this);
-        this.listImages = this.listImages.bind(this);
+        this.listImagesHandler = this.listImagesHandler.bind(this);
+        this.searchImageHandler = this.searchImageHandler.bind(this);
     }
     async componentDidMount() {
-        this.listImages()
+        this.listImagesHandler()
     }
 
-    async listImages() {
+    async listImagesHandler() {
         let imagesList = await listImages();
         this.setState({ userImgData: [] })
         for (let index = imagesList.imageCount - 1; index >= 0; index--) {
             const element = imagesList.images[index].imageData;
             this.setState(prev => ({ ...prev, userImgData: [...prev.userImgData, element] }))
         }
-        console.log("array lenfth: ", this.state.userImgData.length)
+        // console.log("array length: ", this.state.userImgData.length)
     }
 
     async addImage() {
         console.log("Add Image")
         let addImageResponse = await addImage(this.state.imgName, this.state.imgCategory, this.state.imgFile);
         console.log("AddImageResponse: ", addImageResponse);
-        this.listImages()
+        this.listImagesHandler()
 
     }
+
+    async searchImageHandler() {
+        console.log("Search Image")
+        let searchImageResponse = await searchImage(this.state.imageLabel);
+        console.log("searchImageResponse: ", searchImageResponse);
+        // this.listImagesHandler()
+        this.setState({ userImgData: [] })
+        for (let index = searchImageResponse.imageCount - 1; index >= 0; index--) {
+            const element = searchImageResponse.images[index].imageData;
+            this.setState(prev => ({ ...prev, userImgData: [...prev.userImgData, element] }))
+        }
+        // console.log("array length: ", this.state.userImgData.length)
+    }
+
     render() {
         return (
             <>
@@ -63,6 +76,17 @@ export default class PhotoAlbumApp extends Component {
                         onDone={({ base64 }) => this.setState({ imgFile: base64 })}
                     />
                     <button type="button" class="btn btn-success btn-lg button_d" onClick={this.addImage}>Add Image</button>
+
+                </div>
+                <div className="mb-5 searchButtons">
+                    <input
+                        type="text"
+                        className="searchField"
+                        placeholder="Enter Label"
+                        onChange={(e) => this.setState({ imageLabel: e.target.value })}
+                    />
+                    
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.searchImageHandler}>Search</button>
 
                 </div>
                 <div>

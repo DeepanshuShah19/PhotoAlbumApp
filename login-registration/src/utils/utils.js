@@ -306,8 +306,33 @@ export const listImages = async () => {
     return null;
 }
 
-export const masonryOptions = {
-    fitWidth: true,
-    columnWidth: 300,
-    gutter: 5
-  };
+export const searchImage = async (label) => {
+    console.log("In searchImage function")
+    const requestBody = {
+        'imageLabel': label,
+        'token': TOKEN,
+    };
+
+    console.log('stringified request: ', JSON.stringify(requestBody));
+
+    const options = {
+        method: "POST",
+        crossDomain: true,
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify(requestBody)
+    };
+
+    try {
+        let response = await fetch(API_URL + "searchImage", options);
+        let json = await response.json();
+        console.log('Image List', json);
+        return json.data;
+    } catch (err) {
+        console.error('Error while searching image.', err);
+    }
+    return null;
+}
