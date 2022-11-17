@@ -336,3 +336,34 @@ export const searchImage = async (label) => {
     }
     return null;
 }
+
+export const groupImage = async (category) => {
+    console.log("In groupImage function")
+    const requestBody = {
+        'category': category,
+        'token': TOKEN,
+    };
+
+    console.log('stringified request: ', JSON.stringify(requestBody));
+
+    const options = {
+        method: "POST",
+        crossDomain: true,
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify(requestBody)
+    };
+
+    try {
+        let response = await fetch(API_URL + "groupImages", options);
+        let json = await response.json();
+        console.log('Image List', json);
+        return json.data;
+    } catch (err) {
+        console.error('Error while searching image.', err);
+    }
+    return null;
+}

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { addImage, listImages, searchImage} from "../utils/utils";
+import { addImage, listImages, searchImage, groupImage} from "../utils/utils";
 import FileBase64 from 'react-file-base64';
 export default class PhotoAlbumApp extends Component {
 
@@ -13,11 +13,13 @@ export default class PhotoAlbumApp extends Component {
             imgCategory: '',
             imgFile: '',
             imageLabel: '',
+            groupName: '',
             hover: false
         };
         this.addImage = this.addImage.bind(this);
         this.listImagesHandler = this.listImagesHandler.bind(this);
         this.searchImageHandler = this.searchImageHandler.bind(this);
+        this.groupHandler = this.groupHandler.bind(this);
     }
     async componentDidMount() {
         this.listImagesHandler()
@@ -49,6 +51,19 @@ export default class PhotoAlbumApp extends Component {
         this.setState({ userImgData: [] })
         for (let index = searchImageResponse.imageCount - 1; index >= 0; index--) {
             const element = searchImageResponse.images[index].imageData;
+            this.setState(prev => ({ ...prev, userImgData: [...prev.userImgData, element] }))
+        }
+        // console.log("array length: ", this.state.userImgData.length)
+    }
+    
+    async groupHandler() {
+        console.log("Group Display")
+        let groupResponse = await groupImage(this.state.groupName);
+        console.log("searchImageResponse: ", groupResponse);
+        // this.listImagesHandler()
+        this.setState({ userImgData: [] })
+        for (let index = groupResponse.imageCount - 1; index >= 0; index--) {
+            const element = groupResponse.images[index].imageData;
             this.setState(prev => ({ ...prev, userImgData: [...prev.userImgData, element] }))
         }
         // console.log("array length: ", this.state.userImgData.length)
@@ -87,6 +102,16 @@ export default class PhotoAlbumApp extends Component {
                     />
                     
                     <button type="button" class="btn btn-success btn-lg button_d" onClick={this.searchImageHandler}>Search</button>
+
+
+                    <input
+                        type="text"
+                        className="searchField"
+                        placeholder="Enter Group Name"
+                        onChange={(e) => this.setState({ groupName: e.target.value })}
+                    />
+                    
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.groupHandler}>Search</button>
 
                 </div>
                 <div>
