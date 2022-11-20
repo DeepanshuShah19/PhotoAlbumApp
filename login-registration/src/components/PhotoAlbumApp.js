@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { addImage, listImages, searchImage, groupImage } from "../utils/utils";
+import { addImage, listImages, searchImage, groupImage, imageDelete } from "../utils/utils";
 import FileBase64 from 'react-file-base64';
 export default class PhotoAlbumApp extends Component {
 
@@ -14,12 +14,15 @@ export default class PhotoAlbumApp extends Component {
             imgFile: '',
             imageLabel: '',
             groupName: '',
-            hover: false
+            hover: false,
+            passwordTextField: false,
+            password: ''
         };
         this.addImage = this.addImage.bind(this);
         this.listImagesHandler = this.listImagesHandler.bind(this);
         this.searchImageHandler = this.searchImageHandler.bind(this);
         this.groupHandler = this.groupHandler.bind(this);
+        this.deleteImage = this.deleteImage.bind(this);
     }
     async componentDidMount() {
         this.listImagesHandler()
@@ -69,6 +72,15 @@ export default class PhotoAlbumApp extends Component {
         // console.log("array length: ", this.state.userImgData.length)
     }
 
+    async deleteImage() {
+        console.log("password: ", this.state.password)
+        console.log("itemLabel: ", this.state.imageLabel)
+        console.log("Delete Task")
+        let deletedTaskResponse = await imageDelete(this.state.imageLabel,this.state.password);
+        console.log("deletedTaskresponse: ", deletedTaskResponse);
+        this.listImagesHandler()
+    }
+
     render() {
         return (
             <>
@@ -109,44 +121,49 @@ export default class PhotoAlbumApp extends Component {
                     />
                     <button type="button" class="btn btn-success btn-lg button_d" onClick={this.groupHandler}>Search</button>
                 </div>
-                {/* <div style={{ columnCount: 3 }}>
-                    {this.state.userImgData.map(item => (
-                        <div className="p-1 m-1 border flex justify-center"  >
-
-                            <img className="activator" width="100%" height="auto" src={item.imageData} onMouseEnter={() => this.setState({ hover: true })} onMouseLeave={() => this.setState({ hover: false })} />
-                            {this.state.hover && (
-                                <button
-                                    size="sm"
-                                    style={{
-                                        position: "absolute",
-                                        top: "5px",
-                                        right: "5px",
-                                    }}
-                                    variant="primary"
-                                >
-                                    Delete Image
-                                </button>
-                            )}
-                        </div>
-                    ))}
-                </div> */}
+                <div className="mb-5 searchButtons">
+                    <input
+                        type="text"
+                        className="searchField"
+                        placeholder="Enter Label To Delete Image"
+                        onChange={(e) => this.setState({ imageLabel: e.target.value })}
+                    />
+                    {/* <button type="button" class="btn btn-success btn-lg button_d" onClick={this.searchImageHandler}>Search</button> */}
+                    <input
+                        type="text"
+                        className="searchField"
+                        placeholder="Enter Password"
+                        onChange={(e) => this.setState({ password: e.target.value })}
+                    />
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.deleteImage}>Delete Image</button>
+                </div>
                 <div style={{ columnCount: 2 }}>
                     {this.state.userImgData.map(item => (
                         <div className="p-1 m-1 border flex justify-center image"  >
-                            <img className="activator" width="100%" height="auto" src={item.imageData} onMouseEnter={() => this.setState({ hover: true })} onMouseLeave={() => this.setState({ hover: false })} />
+                            <img className="activator" width="500px" height="500px" src={item.imageData} onMouseEnter={() => this.setState({ hover: true })} onMouseLeave={() => this.setState({ hover: false })} />
                             <div className="image__overlay">
                                 <div className="image__title">
                                     {item.imageLabel}
                                 </div>
                                 <p className="image__description">{item.category}</p>
-                                <button type="button" class="btn btn-success btn-lg button_d" onClick={this.groupHandler}>Delete</button>
-                                <br></br>
                                 <button type="button" class="btn btn-success btn-lg button_d" onClick={this.groupHandler}>Replace</button>
+                                <br/>
+                                {this.state.passwordTextField === true
+                                    ? <>
+                                        <input
+                                            type="text"
+                                            className="searchField"
+                                            placeholder="Enter Password To Delete Image"
+                                            onChange={(e) => this.setState({ password: e.target.value })}
+                                        /><br/>
+                                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.deleteImage(this.state.password,item.imageLabel)}>Delete</button>
+                                    </>
+                                    : <button type="button" class="btn btn-success btn-lg button_d" onClick={() => this.setState({ passwordTextField: true })}>Delete</button>
+                                }<br/>
                             </div>
                         </div>
                     ))}
                 </div >
-
             </>
         );
     }

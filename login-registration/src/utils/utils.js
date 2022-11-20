@@ -367,3 +367,35 @@ export const groupImage = async (category) => {
     }
     return null;
 }
+
+export const imageDelete = async (label,password) => {
+    console.log("In deleteImage function")
+    const requestBody = {
+        'imageLabel': label,
+        'password':password,
+        'token': TOKEN,
+    };
+
+    console.log('stringified request: ', JSON.stringify(requestBody));
+
+    const options = {
+        method: "POST",
+        crossDomain: true,
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify(requestBody)
+    };
+
+    try {
+        let response = await fetch(API_URL + "deleteImage", options);
+        let json = await response.json();
+        console.log('Delete Image Response', json);
+        return json;
+    } catch (err) {
+        console.error('Error while searching image.', err);
+    }
+    return null;
+}
