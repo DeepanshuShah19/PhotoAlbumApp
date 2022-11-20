@@ -399,3 +399,34 @@ export const imageDelete = async (label,password) => {
     }
     return null;
 }
+
+export const changeImage = async (name,category,data) => {
+    console.log("In addImage function")
+    const requestBody = {
+        'imageLabel':name,
+        'category':category,
+        'token': TOKEN,
+        'imageData':data
+    };
+    console.log('stringified request: ', JSON.stringify(requestBody));
+    const options = {
+        method: "POST",
+        crossDomain: true,
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify(requestBody)
+    };
+
+    try {
+        let response = await fetch(API_URL + "changeImage", options);
+        let json = await response.json();
+        console.log('Image Added', json);
+        return json.data;
+    } catch (err) {
+        console.error('Error while adding new image.', err);
+    }
+    return null;
+}
