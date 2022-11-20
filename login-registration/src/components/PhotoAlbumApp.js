@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { addImage, listImages, searchImage, groupImage, imageDelete } from "../utils/utils";
+import { addImage, listImages, searchImage, groupImage, imageDelete, changeImage } from "../utils/utils";
 import FileBase64 from 'react-file-base64';
 export default class PhotoAlbumApp extends Component {
 
@@ -19,13 +19,16 @@ export default class PhotoAlbumApp extends Component {
             password: '',
             displayLabelSearch: false,
             displayCategorySearch: false,
-            displayDelete: false
+            displayDelete: false,
+            editImage: false,
+            addNewImage: true
         };
         this.addImage = this.addImage.bind(this);
         this.listImagesHandler = this.listImagesHandler.bind(this);
         this.searchImageHandler = this.searchImageHandler.bind(this);
         this.groupHandler = this.groupHandler.bind(this);
         this.deleteImage = this.deleteImage.bind(this);
+        this.editImage = this.editImage.bind(this);
     }
     async componentDidMount() {
         this.listImagesHandler()
@@ -33,7 +36,14 @@ export default class PhotoAlbumApp extends Component {
 
     async listImagesHandler() {
         let imagesList = await listImages();
-        this.setState({ userImgData: [] })
+        this.setState({ 
+            userImgData: [],
+            addNewImage: true,
+            editImage: false,
+            displayDelete: false,
+            displayCategorySearch: false,
+            displayLabelSearch: false,
+         })
         for (let index = imagesList.imageCount - 1; index >= 0; index--) {
             const element = imagesList.images[index];
             this.setState(prev => ({ ...prev, userImgData: [...prev.userImgData, element] }))
@@ -59,7 +69,7 @@ export default class PhotoAlbumApp extends Component {
             const element = searchImageResponse.images[index];
             this.setState(prev => ({ ...prev, userImgData: [...prev.userImgData, element] }))
         }
-        this.setState({displayLabelSearch:false})
+        this.setState({ displayLabelSearch: false })
         // console.log("array length: ", this.state.userImgData.length)
     }
 
@@ -82,42 +92,51 @@ export default class PhotoAlbumApp extends Component {
         console.log("Delete Task")
         let deletedTaskResponse = await imageDelete(this.state.imageLabel, this.state.password);
         console.log("deletedTaskresponse: ", deletedTaskResponse);
-        this.setState({displayDelete:false})
+        this.setState({ displayDelete: false })
         this.listImagesHandler()
     }
 
+    async editImage() {
+        console.log("Edit Image")
+        let editImageResponse = await changeImage(this.state.imgName, this.state.imgCategory, this.state.imgFile);
+        console.log("editImageResponse: ", editImageResponse);
+        this.listImagesHandler()
+    }
     render() {
         return (
             <>
                 {/* add image */}
-                <div className="mb-5 searchButtons">
-                    <input
-                        type="text"
-                        className="searchField"
-                        placeholder="Image Name"
-                        onChange={(e) => this.setState({ imgName: e.target.value })}
-                    />
-                    <input
-                        type="text"
-                        className="searchField"
-                        placeholder="Image Category"
-                        onChange={(e) => this.setState({ imgCategory: e.target.value })}
-                    />
-                    <FileBase64
-                        type="file"
-                        multiple={false}
-                        onDone={({ base64 }) => this.setState({ imgFile: base64 })}
-                    />
-                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.addImage}>Add Image</button>
-
-                </div>
+                {this.state.addNewImage === true
+                    ? <><div className="mb-5 searchButtons">
+                        <input
+                            type="text"
+                            className="searchField"
+                            placeholder="Image Name"
+                            onChange={(e) => this.setState({ imgName: e.target.value })}
+                        />
+                        <input
+                            type="text"
+                            className="searchField"
+                            placeholder="Image Category"
+                            onChange={(e) => this.setState({ imgCategory: e.target.value })}
+                        />
+                        <FileBase64
+                            type="file"
+                            multiple={false}
+                            onDone={({ base64 }) => this.setState({ imgFile: base64 })}
+                        />
+                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.addImage}>Add Image</button>
+                    </div></>
+                    : null
+                }
 
                 {/* show options  */}
                 <div className="mb-5 searchButtons">
-                    <button type="button" class="btn btn-success btn-lg button_d" onClick={() => this.setState({ displayLabelSearch: true ,displayCategorySearch: false, displayDelete: false})}>Search by Label</button>
-                    <button type="button" class="btn btn-success btn-lg button_d" onClick={() => this.setState({ displayCategorySearch: true, displayDelete: false, displayLabelSearch: false})}>Search by Category</button>
-                    <button type="button" class="btn btn-success btn-lg button_d" onClick={() => this.setState({ displayDelete: true, displayCategorySearch: false, displayLabelSearch: false })}>Delete</button>
-
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.listImagesHandler}>View all images</button>
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={() => this.setState({ displayLabelSearch: true, displayCategorySearch: false, displayDelete: false, editImage: false, addNewImage: true })}>Search by label</button>
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={() => this.setState({ displayCategorySearch: true, displayDelete: false, displayLabelSearch: false, editImage: false, addNewImage: true })}>Search by category</button>
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={() => this.setState({ displayDelete: true, displayCategorySearch: false, displayLabelSearch: false, editImage: false, addNewImage: true })}>Delete</button>
+                    <button type="button" class="btn btn-success btn-lg button_d" onClick={() => this.setState({ editImage: true, displayCategorySearch: false, displayLabelSearch: false, displayDelete: false, addNewImage: false})}>Edit image</button>
                 </div>
 
                 {/* triggering displays  */}
@@ -150,7 +169,7 @@ export default class PhotoAlbumApp extends Component {
                             onChange={(e) => this.setState({ imageLabel: e.target.value })}
                         />
                             <input
-                                type="text"
+                                type="password"
                                 className="searchField"
                                 placeholder="Enter Password"
                                 onChange={(e) => this.setState({ password: e.target.value })}
@@ -158,41 +177,28 @@ export default class PhotoAlbumApp extends Component {
                             <button type="button" class="btn btn-success btn-lg button_d" onClick={this.deleteImage}>Delete Image</button></>
                         : null
                     }
+                    {this.state.editImage === true
+                        ? <><input
+                            type="text"
+                            className="searchField"
+                            placeholder="Image Name"
+                            onChange={(e) => this.setState({ imgName: e.target.value })}
+                        />
+                            <input
+                                type="text"
+                                className="searchField"
+                                placeholder="Image Category"
+                                onChange={(e) => this.setState({ imgCategory: e.target.value })}
+                            />
+                            <FileBase64
+                                type="file"
+                                multiple={false}
+                                onDone={({ base64 }) => this.setState({ imgFile: base64 })}
+                            />
+                            <button type="button" class="btn btn-success btn-lg button_d" onClick={this.editImage}>Edit Image</button></>
+                        : null
+                    }
                 </div>
-                {/* search by label or category  */}
-                {/* <div className="mb-5 searchButtons">
-                    <input
-                        type="text"
-                        className="searchField"
-                        placeholder="Enter Label"
-                        onChange={(e) => this.setState({ imageLabel: e.target.value })}
-                    />
-                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.searchImageHandler}>Search</button>
-                    <input
-                        type="text"
-                        className="searchField"
-                        placeholder="Enter Group Name"
-                        onChange={(e) => this.setState({ groupName: e.target.value })}
-                    />
-                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.groupHandler}>Search</button>
-                </div> */}
-
-                {/* delete image  */}
-                {/* <div className="mb-5 searchButtons">
-                    <input
-                        type="text"
-                        className="searchField"
-                        placeholder="Enter Label To Delete Image"
-                        onChange={(e) => this.setState({ imageLabel: e.target.value })}
-                    />
-                    <input
-                        type="text"
-                        className="searchField"
-                        placeholder="Enter Password"
-                        onChange={(e) => this.setState({ password: e.target.value })}
-                    />
-                    <button type="button" class="btn btn-success btn-lg button_d" onClick={this.deleteImage}>Delete Image</button>
-                </div> */}
 
                 {/* display images  */}
                 <div style={{ columnCount: 2 }}>
@@ -204,7 +210,6 @@ export default class PhotoAlbumApp extends Component {
                                     {item.imageLabel}
                                 </div>
                                 <p className="image__description">{item.category}</p>
-                                <button type="button" class="btn btn-success btn-lg button_d" onClick={this.groupHandler}>Replace</button>
                             </div>
                         </div>
                     ))}
