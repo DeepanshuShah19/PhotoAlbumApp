@@ -84,6 +84,7 @@ export default class PhotoAlbumApp extends Component {
     render() {
         return (
             <>
+                {/* add image */}
                 <div className="mb-5 searchButtons">
                     <input
                         type="text"
@@ -105,6 +106,8 @@ export default class PhotoAlbumApp extends Component {
                     <button type="button" class="btn btn-success btn-lg button_d" onClick={this.addImage}>Add Image</button>
 
                 </div>
+
+                {/* search by label or category  */}
                 <div className="mb-5 searchButtons">
                     <input
                         type="text"
@@ -121,6 +124,8 @@ export default class PhotoAlbumApp extends Component {
                     />
                     <button type="button" class="btn btn-success btn-lg button_d" onClick={this.groupHandler}>Search</button>
                 </div>
+
+                {/* delete image  */}
                 <div className="mb-5 searchButtons">
                     <input
                         type="text"
@@ -128,7 +133,6 @@ export default class PhotoAlbumApp extends Component {
                         placeholder="Enter Label To Delete Image"
                         onChange={(e) => this.setState({ imageLabel: e.target.value })}
                     />
-                    {/* <button type="button" class="btn btn-success btn-lg button_d" onClick={this.searchImageHandler}>Search</button> */}
                     <input
                         type="text"
                         className="searchField"
@@ -137,6 +141,8 @@ export default class PhotoAlbumApp extends Component {
                     />
                     <button type="button" class="btn btn-success btn-lg button_d" onClick={this.deleteImage}>Delete Image</button>
                 </div>
+
+                {/* display images  */}
                 <div style={{ columnCount: 2 }}>
                     {this.state.userImgData.map(item => (
                         <div className="p-1 m-1 border flex justify-center image"  >
@@ -147,19 +153,6 @@ export default class PhotoAlbumApp extends Component {
                                 </div>
                                 <p className="image__description">{item.category}</p>
                                 <button type="button" class="btn btn-success btn-lg button_d" onClick={this.groupHandler}>Replace</button>
-                                <br/>
-                                {this.state.passwordTextField === true
-                                    ? <>
-                                        <input
-                                            type="text"
-                                            className="searchField"
-                                            placeholder="Enter Password To Delete Image"
-                                            onChange={(e) => this.setState({ password: e.target.value })}
-                                        /><br/>
-                                        <button type="button" class="btn btn-success btn-lg button_d" onClick={this.deleteImage(this.state.password,item.imageLabel)}>Delete</button>
-                                    </>
-                                    : <button type="button" class="btn btn-success btn-lg button_d" onClick={() => this.setState({ passwordTextField: true })}>Delete</button>
-                                }<br/>
                             </div>
                         </div>
                     ))}
