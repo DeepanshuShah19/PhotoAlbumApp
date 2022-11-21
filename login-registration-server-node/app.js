@@ -44,7 +44,8 @@ app.post("/register", async (req, res) => {
       name,
       email,
       password: encryptedPassword,
-      taskCount: 0
+      taskCount: 0,
+      imageCount: 0
     });
     const token = jwt.sign({ email: email }, JWT_SECRET)
     res.send({ status: "ok", data: token });
@@ -143,7 +144,7 @@ app.post("/searchImage", async (req, res) => {
 app.post("/groupImages", async (req, res) => {
   console.log(req.body);
 
-  const { token } = req.body;
+  const { category, token } = req.body;
   try {
     const user = jwt.verify(token, JWT_SECRET);
     console.log(user);
@@ -153,33 +154,32 @@ app.post("/groupImages", async (req, res) => {
           "email": user.email
         }
       },
-      // {
-      //   $group: {
-      //     _id: '$images.category',
-      //     count: { $sum: 1 }
-      //   }
-      // },
-      {
-        "$group": {
-          "_id": "$images.category",
-          "imageLabel": { "$first": "$images.imageLabel" }
-          // "items": {
-          //   "$addToSet": {
-          //     "category": "$images.category",
-          //     "imageLabel": "$images.imageLabel"
-          //   }
-          // }
-        }
-      },
       {
         $unwind: '$images'
       },
+      {
+        $match: {
+          'images.category': { $regex: category }
+        }
+      },
+      {
+        "$project": {
+          "images": 1,
+          _id: 0
+        }
       // {
-      //   "$project": {
-      //     "images": 1,
-      //     _id: 0
+      //   "$group": {
+      //     "_id": "$images.category",
+      //     "imageLabel": { "$first": "$images.imageLabel" }
+      //     // "items": {
+      //     //   "$addToSet": {
+      //     //     "category": "$images.category",
+      //     //     "imageLabel": "$images.imageLabel"
+      //     //   }
+      //     // }
       //   }
-      // }
+      // },
+      }
     ])
 
     console.log("images########", image);
@@ -289,7 +289,7 @@ app.post("/deleteImage", async (req, res) => {
 app.post("/changeImage", async (req, res) => {
   console.log(req.body);
 
-  const { imageLabel, imageData, categor, token } = req.body;
+  const { imageLabel, imageData, category, token } = req.body;
   try {
     const user = jwt.verify(token, JWT_SECRET);
     console.log(user);
@@ -302,7 +302,7 @@ app.post("/changeImage", async (req, res) => {
       {
         $set: {
           "images.$.imageData": imageData,
-          "images.$.category": categor
+          "images.$.category": category
         }
       })
 
