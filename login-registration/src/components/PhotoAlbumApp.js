@@ -77,13 +77,11 @@ export default class PhotoAlbumApp extends Component {
         console.log("Group Display")
         let groupResponse = await groupImage(this.state.groupName);
         console.log("searchImageResponse: ", groupResponse);
-        // this.listImagesHandler()
         this.setState({ userImgData: [] })
-        for (let index = groupResponse.imageCount - 1; index >= 0; index--) {
+        for (let index = groupResponse.imagesCount - 1; index >= 0; index--) {
             const element = groupResponse.images[index];
             this.setState(prev => ({ ...prev, userImgData: [...prev.userImgData, element] }))
         }
-        // console.log("array length: ", this.state.userImgData.length)
     }
 
     async deleteImage() {
